@@ -21,6 +21,15 @@ log("Bot instance ready");
 const app = express();
 log("Express server ready");
 
+export async function sendMessages() {
+  log("To repeat");
+  await processTrendingPairs();
+  await checkNewTrending();
+  await updateTrendingMessage();
+
+  cleanUpExpired();
+}
+
 (async function () {
   rpcConfig();
   teleBot.start();
@@ -72,16 +81,6 @@ log("Express server ready");
     log(`Server is running on port ${PORT}`);
   });
 
-  async function toRepeat() {
-    log("To repeat");
-    await processTrendingPairs();
-    await checkNewTrending();
-    await updateTrendingMessage();
-
-    cleanUpExpired();
-
-    await sleep(5 * 60 * 1e3);
-    toRepeat();
-  }
-  await toRepeat();
+  await sendMessages();
+  sleep(5 * 60 * 1e3).then(() => sendMessages());
 })();

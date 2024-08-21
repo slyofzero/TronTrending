@@ -36,13 +36,13 @@ export async function unlockUnusedAccounts() {
           id: id || "",
         });
 
-        await sendTransaction(
+        const result = await sendTransaction(
           decryptedSecretKey,
           balance,
           splitPaymentsWith.main.address
         );
 
-        log(`${account} emptied`);
+        if (result) log(`${account} emptied`);
       } else {
         updateDocumentById({
           updates: { locked: false, lockedAt: null },

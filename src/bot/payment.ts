@@ -28,9 +28,10 @@ import { Timestamp } from "firebase-admin/firestore";
 import { CallbackQueryContext, Context, InlineKeyboard } from "grammy";
 import { customAlphabet } from "nanoid";
 import { syncToTrend } from "@/vars/trending";
-import { apiPoster } from "@/utils/api";
+import { apiPoster, syncTrendingBuyBot } from "@/utils/api";
 import moment from "moment";
 import { tronWeb } from "@/rpc";
+import { updateTrendingMessage } from "./updateTrendingMessage";
 
 const alphabet =
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -547,7 +548,11 @@ Check [Hype TRENDING](${TRENDING_MESSAGE}) in a few minutes!*`;
           apiPoster(`${TRENDING_BUY_BOT_API}/syncAds`).catch((e) =>
             errorHandler(e)
           );
+        } else {
+          syncTrendingBuyBot();
         }
+
+        updateTrendingMessage();
 
         syncFunc()
           .then(() => {
