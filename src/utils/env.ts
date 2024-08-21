@@ -25,6 +25,7 @@ export const {
   BANNED_TOKENS,
   PAYMENT_LOGS_CHANNEL,
   MAIN_ACCOUNT,
+  DEXTOOLS_API_KEY,
 } = process.env;
 
 export const BOT_URL = `https://t.me/${BOT_USERNAME}`;
