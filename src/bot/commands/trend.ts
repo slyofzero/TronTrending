@@ -108,7 +108,7 @@ export async function addTrendingSocial(ctx: CommandContext<Context>) {
   trendingState[chatId] = { token };
 
   userState[chatId] = "trendSocials";
-  const text = `Please enter social link.`;
+  const text = `Please enter your project's telegram link.`;
   ctx.reply(text).catch((e) => errorHandler(e));
 }
 
