@@ -10,7 +10,7 @@ import {
 } from "@/vars/trending";
 
 export async function processTrendingPairs() {
-  const newTopTrendingTokens: TrendingTokens = [];
+  let newTopTrendingTokens: TrendingTokens = [];
 
   // const getTrendingTokens = async (page: number) => {
   //   page ||= 1;
@@ -103,6 +103,7 @@ export async function processTrendingPairs() {
     newTopTrendingTokens.splice(slotToTrend - 1, 0, newTrendingPair);
   }
 
+  newTopTrendingTokens = newTopTrendingTokens.slice(0, 15);
   setTopTrendingTokens(newTopTrendingTokens);
 
   if (previouslyTrendingTokens.length !== newTopTrendingTokens.length) {

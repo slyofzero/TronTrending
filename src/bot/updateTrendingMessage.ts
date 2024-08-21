@@ -9,7 +9,8 @@ import {
   hardCleanUpBotMessage,
   sendNewTrendingMessage,
 } from "@/utils/bot";
-import { validEditMessageTextErrors } from "@/utils/constants";
+import { NEW_THRESHOLD, validEditMessageTextErrors } from "@/utils/constants";
+import { timeSinceTrending } from "./checkNewTrending";
 
 export async function updateTrendingMessage() {
   if (!CHANNEL_ID) {
@@ -61,9 +62,12 @@ export async function updateTrendingMessage() {
 
       const cleanedTokenName = hardCleanUpBotMessage(name);
       const cleanedTokenSymbol = hardCleanUpBotMessage(symbol);
-      const formattedPriceChange = `[${cleanUpBotMessage(
-        priceChangeh24
-      )}%](${photonLink})`;
+      const trendingDuration =
+        Date.now() - timeSinceTrending[token] < NEW_THRESHOLD;
+      const tokenText = trendingDuration
+        ? "New\\!"
+        : `${cleanUpBotMessage(priceChangeh24)}%`;
+      const formattedPriceChange = `[${tokenText}](${photonLink})`;
 
       const indentation = index < 3 || index === 9 ? "\n" : "";
 

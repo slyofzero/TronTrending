@@ -17,6 +17,8 @@ import { sleep } from "@/utils/time";
 import { setLastSentMessageId } from "@/vars/message";
 import { updateDocumentById } from "@/firebase";
 
+export const timeSinceTrending: { [key: string]: number } = {};
+
 moment.updateLocale("en", {
   relativeTime: {
     future: "in %s",
@@ -122,6 +124,8 @@ export async function checkNewTrending() {
   for (const [index, [token, tokenData]] of trendingTokens.entries()) {
     const wasPreviouslyTrending = previouslyTrendingTokens.includes(token);
     if (wasPreviouslyTrending) continue;
+
+    timeSinceTrending[token] = Date.now();
 
     await sendNewTrendingMsg(tokenData, index);
   }
