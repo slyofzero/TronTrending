@@ -72,8 +72,12 @@ export function generateRandomID() {
   return `${part1}-${part2}-${part3}`;
 }
 
+export function isValidInviteLink(url: string) {
+  return url.startsWith("https://t.me");
+}
+
 export function isValidUrl(url: string) {
-  return urlRegex.test(url);
+  return urlRegex.test(url) || isValidInviteLink(url);
 }
 
 export function floatToBigInt(num: number) {
