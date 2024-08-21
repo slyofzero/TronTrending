@@ -540,7 +540,7 @@ Slot ${slot}, duration ${duration} hours
           .utc()
           .format("ddd, DD MMM YYYY HH:mm:ss [GMT]");
         const confirmationText = `✅ *Payment received at ${formattedDate}
-Check [Hype TRENDING](${TRENDING_MESSAGE}) in a few minutes!*`;
+Check [Tron TRENDING](${TRENDING_MESSAGE}) in a few minutes!*`;
 
         const syncFunc = isTrendingPayment ? syncToTrend : syncAdvertisements;
 
