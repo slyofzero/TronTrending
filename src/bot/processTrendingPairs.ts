@@ -1,7 +1,6 @@
 import { PairData, PairsData } from "@/types";
 import { TrendingTokens } from "@/types/trending";
 import { apiFetcher, syncTrendingBuyBot } from "@/utils/api";
-import { TOKEN_DATA_URL } from "@/utils/env";
 import { getTrendingTokens } from "@/utils/getTokens";
 import { log } from "@/utils/handlers";
 import {
@@ -16,7 +15,7 @@ export async function processTrendingPairs() {
   // const getTrendingTokens = async (page: number) => {
   //   page ||= 1;
   //   const trendingPairs = await apiFetcher<TokenPoolData>(
-  //     `https://api.geckoterminal.com/api/v2/networks/solana/trending_pools?page=${page}`
+  //     `https://api.geckoterminal.com/api/v2/networks/tron/trending_pools?page=${page}`
   //   );
 
   //   if (!trendingPairs) return;
@@ -27,7 +26,7 @@ export async function processTrendingPairs() {
   //     try {
   //       const { address } = pair.attributes;
   //       const pairData = await apiFetcher<PairsData>(
-  //         `https://api.dexscreener.com/latest/dex/pairs/solana/${address}`
+  //         `https://api.dexscreener.com/latest/dex/pairs/tron/${address}`
   //       );
 
   //       const tokenAlreadyInTop15 = newTopTrendingTokens.some(
@@ -68,8 +67,9 @@ export async function processTrendingPairs() {
 
       const firstPair = pairData?.data.pairs.at(0);
       if (!firstPair || tokenAlreadyInTop15) continue;
+      const tokenAddress = firstPair.baseToken.address;
 
-      newTopTrendingTokens.push([address, firstPair]);
+      newTopTrendingTokens.push([tokenAddress, firstPair]);
     } catch (error) {
       continue;
     }
@@ -94,7 +94,9 @@ export async function processTrendingPairs() {
       continue;
     }
 
-    const pairData = await apiFetcher<PairsData>(`${TOKEN_DATA_URL}/${token}`);
+    const pairData = await apiFetcher<PairsData>(
+      `https://api.dexscreener.com/latest/dex/tokens/${token}`
+    );
     const firstPair = pairData?.data.pairs.at(0);
     if (!firstPair) continue;
     const newTrendingPair: [string, PairData] = [token, firstPair];

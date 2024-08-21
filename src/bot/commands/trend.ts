@@ -1,5 +1,4 @@
 import { apiFetcher } from "@/utils/api";
-import { isValidSolAddress } from "@/utils/web3";
 import { trendingState, userState } from "@/vars/state";
 import { toTrendTokens } from "@/vars/trending";
 import {
@@ -11,11 +10,12 @@ import {
 import { preparePayment } from "../payment";
 import { isValidUrl } from "@/utils/general";
 import { PairsData, StoredToTrend } from "@/types";
-import { TOKEN_DATA_URL, TRENDING_PRICES } from "@/utils/env";
+import { TRENDING_PRICES } from "@/utils/env";
 import { errorHandler } from "@/utils/handlers";
 import { getDocument } from "@/firebase";
 import moment from "moment";
 import { trendPrices } from "@/utils/constants";
+import { tronWeb } from "@/rpc";
 
 export async function trend(
   ctx: CommandContext<Context> | CallbackQueryContext<Context>
@@ -82,17 +82,19 @@ export async function addTrendingSocial(ctx: CommandContext<Context>) {
   const { id: chatId } = ctx.chat;
   const token = ctx.message?.text;
 
-  if (!isValidSolAddress(token || "")) {
+  if (!tronWeb.isAddress(token)) {
     return ctx.reply("Please enter a proper token address");
   }
 
   // const terminalResponse = apiFetcher<TerminalData>(
   //   `https://api.geckoterminal.com/api/v2/search/pools?query=${token}&network=ton&page=1`
   // );
-  const dexSData = await apiFetcher<PairsData>(`${TOKEN_DATA_URL}/${token}`);
+  const dexSData = await apiFetcher<PairsData>(
+    `https://api.dexscreener.com/latest/dex/tokens/${token}`
+  );
 
-  if (dexSData?.data.pairs?.length === 0) {
-    return ctx.reply("The address you entered has no pairs on Solana.");
+  if (!dexSData?.data.pairs?.length) {
+    return ctx.reply("The address you entered has no pairs on Tron.");
   }
 
   const storedTokenData = toTrendTokens.find(
@@ -133,19 +135,6 @@ export async function setTrendingEmoji(
   );
   userState[chatId] = "trendEmoji";
 }
-
-// export async function setTrendingGif(ctx: CommandContext<Context>) {
-//   const { id: chatId } = ctx.chat;
-//   const emoji = ctx.message?.text || "";
-
-//   trendingState[chatId] = { ...trendingState[chatId], emoji };
-//   delete userState[chatId];
-
-//   ctx.reply(
-//     "Send a GIF in the next message, this GIF will be shown in the buybot messages in the trending channel."
-//   );
-//   userState[chatId] = "trendGif";
-// }
 
 export async function selectTrendingSlot(
   ctx: CommandContext<Context> | CallbackQueryContext<Context>
@@ -216,7 +205,7 @@ export async function selectTrendingDuration(
     const discount = discounts[Number(duration) as 3 | 8 | 24];
     const discountText = discount ? `(-${discount}%)` : "";
     keyboard = keyboard.text(
-      `${duration} hours | ${price} SOL ${discountText}`,
+      `${duration} hours | ${price} TRX ${discountText}`,
       `trendDuration-${duration}`
     );
 
@@ -231,7 +220,8 @@ export async function selectTrendingDuration(
 export function prepareTrendingState(ctx: CallbackQueryContext<Context>) {
   // @ts-expect-error temp
   const chatId = ctx.chat?.id;
-  const duration = Number(ctx.callbackQuery?.data.at(-1));
+  const duration = Number(ctx.callbackQuery?.data.split("-").at(-1));
+  console.log(ctx.callbackQuery?.data);
 
   if (isNaN(duration)) return ctx.reply("Please click on the button again");
 

@@ -7,7 +7,6 @@ declare global {
       BOT_USERNAME: string | undefined;
       ENCRYPTION_KEY: string | undefined;
       RPC_ENDPOINT: string | undefined;
-      TOKEN_DATA_URL: string | undefined;
       CHANNEL_ID: string | undefined;
       DEX_URL: string | undefined;
       NETWORK_NAME: string | undefined;

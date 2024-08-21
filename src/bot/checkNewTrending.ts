@@ -46,8 +46,8 @@ export async function sendNewTrendingMsg(tokenData: PairData, index: number) {
   const { keyboard } = generateTextFooter(token);
 
   const solScanLink = `https://solscan.io/token/${token}`;
-  const dexSLink = `https://dexscreener.com/solana/${token}`;
-  const photonLink = `https://photon-sol.tinyastro.io/en/lp/${pairAddress}`;
+  const dexSLink = `https://dexscreener.com/tron/${token}`;
+  const photonLink = `https://photon-TRX.tinyastro.io/en/lp/${pairAddress}`;
   const socials = [];
   const toTrendChat = toTrendTokens.find(
     ({ token: storedToken }) => storedToken === token

@@ -11,16 +11,13 @@ import { cleanUpBotMessage, hardCleanUpBotMessage } from "@/utils/bot";
 import {
   adPrices,
   durationExtendFees,
+  SUNS_PER_TRX,
   transactionValidTime,
   TRENDING_MESSAGE,
   trendPrices,
 } from "@/utils/constants";
 import { decrypt, encrypt } from "@/utils/cryptography";
-import {
-  BOT_USERNAME,
-  PAYMENT_LOGS_CHANNEL,
-  TRENDING_BUY_BOT_API,
-} from "@/utils/env";
+import { BOT_USERNAME, TRENDING_BUY_BOT_API } from "@/utils/env";
 import { roundUpToDecimalPlace } from "@/utils/general";
 import { errorHandler, log } from "@/utils/handlers";
 import { getSecondsElapsed, sleep } from "@/utils/time";
@@ -30,12 +27,10 @@ import { advertisementState, trendingState } from "@/vars/state";
 import { Timestamp } from "firebase-admin/firestore";
 import { CallbackQueryContext, Context, InlineKeyboard } from "grammy";
 import { customAlphabet } from "nanoid";
-import web3, { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { solanaConnection } from "@/rpc";
 import { syncToTrend } from "@/vars/trending";
 import { apiPoster } from "@/utils/api";
 import moment from "moment";
-import { teleBot } from "..";
+import { tronWeb } from "@/rpc";
 
 const alphabet =
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -61,7 +56,7 @@ export async function getUnlockedAccount() {
       updates: { locked: true, lockedAt: Timestamp.now() },
     });
   } else {
-    const newAccount = generateAccount();
+    const newAccount = await generateAccount();
     publicKey = newAccount.publicKey;
 
     const newAccountData: StoredAccount = {
@@ -107,15 +102,15 @@ export async function preparePayment(ctx: CallbackQueryContext<Context>) {
     // }
 
     // const ethPrice = (await apiFetcher<any>(ethPriceApi)).data.price;
-    // const priceSol = parseFloat((priceUsd / ethPrice).toFixed(8));
+    // const priceTrx = parseFloat((priceUsd / ethPrice).toFixed(8));
 
     // ------------------------------ Calculating prices based on trend or ad buy ------------------------------
-    let priceSol = 0;
+    let priceTrx = 0;
 
     if (isTrendingPayment) {
-      priceSol = trendPrices[slot as 1 | 2 | 3][duration];
+      priceTrx = trendPrices[slot as 1 | 2 | 3][duration];
     } else {
-      priceSol = adPrices[duration];
+      priceTrx = adPrices[duration];
     }
 
     const slotText = isTrendingPayment ? "trending" : "ad";
@@ -129,7 +124,7 @@ export async function preparePayment(ctx: CallbackQueryContext<Context>) {
 
     const paymentCategory = isTrendingPayment ? "trendingPayment" : "adPayment";
     let text = `You have selected ${slotText} slots ${displaySlot} for ${duration} hours.
-The total cost - \`${roundUpToDecimalPlace(priceSol, 4)}\` SOL
+The total cost - \`${roundUpToDecimalPlace(priceTrx, 4)}\` TRX
 
 Send the bill amount to the below address within 20 minutes, starting from this message generation. Once paid, click on "I have paid" to verify payment. If 20 minutes have already passed then please restart using ${commandToRedo}. 
 
@@ -149,7 +144,7 @@ Address - \`${account}\``;
     let dataToAdd: StoredToTrend | StoredAdvertisement = {
       paidAt: Timestamp.now(),
       sentTo: account,
-      amount: priceSol * LAMPORTS_PER_SOL,
+      amount: priceTrx * SUNS_PER_TRX,
       slot: slot,
       duration: duration,
       hash,
@@ -226,7 +221,7 @@ export async function extendTrendDuration(ctx: CallbackQueryContext<Context>) {
 
     let text = `You have selected to extend your trending purchase \`${trendOrder}\` by ${duration} hours.
    
-The total cost - \`${roundUpToDecimalPlace(amount, 4)}\` SOL
+The total cost - \`${roundUpToDecimalPlace(amount, 4)}\` TRX
 
 Send the bill amount to the below address within 20 minutes, starting from this message generation. Once paid, click on "I have paid" to verify payment. If 20 minutes have already passed then please restart using /trend. 
 
@@ -325,9 +320,7 @@ export async function confirmExtendTrendDurationPayment(
 
     const { secretKey: encryptedSecretKey } = storedAccount;
     const secretKey = decrypt(encryptedSecretKey);
-    const account = web3.Keypair.fromSecretKey(
-      new Uint8Array(JSON.parse(secretKey))
-    );
+    const account = tronWeb.address.fromPrivateKey(secretKey);
 
     attemptsCheck: for (const attempt_number of Array.from(Array(20).keys())) {
       try {
@@ -336,7 +329,7 @@ export async function confirmExtendTrendDurationPayment(
         );
 
         // Checking if payment was made
-        const balance = await solanaConnection.getBalance(account.publicKey);
+        const balance = await tronWeb.trx.getBalance(account);
 
         if (balance < amount) {
           log(`Transaction amount doesn't match`);
@@ -344,9 +337,9 @@ export async function confirmExtendTrendDurationPayment(
           continue attemptsCheck;
         }
 
-        const amountSol = (amount / LAMPORTS_PER_SOL).toFixed(3);
+        const amountSol = (amount / SUNS_PER_TRX).toFixed(3);
 
-        const logText = `${BOT_USERNAME} transaction ${hash} for ${collectionName} verified with payment of ${amountSol} SOL.`;
+        const logText = `${BOT_USERNAME} transaction ${hash} for ${collectionName} verified with payment of ${amountSol} TRX.`;
         log(logText);
         const currentTimestamp = Timestamp.now();
 
@@ -377,7 +370,7 @@ export async function confirmExtendTrendDurationPayment(
         });
 
         const confirmationText = `You have extended your trending order \`${trendOrder}\` by ${duration} hours.
-Payment received of - \`${roundUpToDecimalPlace(amountSol, 4)}\` SOL
+Payment received of - \`${roundUpToDecimalPlace(amountSol, 4)}\` TRX
 
 Transaction hash for your payment is \`${hash}\`. In case of any doubts please reach out to the admins of the bot for any query.`;
 
@@ -479,9 +472,7 @@ export async function confirmPayment(ctx: CallbackQueryContext<Context>) {
 
     const { secretKey: encryptedSecretKey } = storedAccount;
     const secretKey = decrypt(encryptedSecretKey);
-    const account = web3.Keypair.fromSecretKey(
-      new Uint8Array(JSON.parse(secretKey))
-    );
+    const account = tronWeb.address.fromPrivateKey(secretKey);
 
     delete trendingState[chatId];
     delete advertisementState[chatId];
@@ -493,7 +484,7 @@ export async function confirmPayment(ctx: CallbackQueryContext<Context>) {
         );
 
         // Checking if payment was made
-        const balance = await solanaConnection.getBalance(account.publicKey);
+        const balance = await tronWeb.trx.getBalance(account);
 
         if (balance < amount) {
           log(`Transaction amount doesn't match`);
@@ -501,7 +492,7 @@ export async function confirmPayment(ctx: CallbackQueryContext<Context>) {
           continue attemptsCheck;
         }
 
-        const amountSol = (amount / LAMPORTS_PER_SOL).toFixed(3);
+        const amountSol = (amount / SUNS_PER_TRX).toFixed(3);
         const accountLink = `https://solscan.io/account/${storedAccount.publicKey}#transfers`;
         const trendingCaText = isTrendingPayment
           ? `Trended CA : \`${token}\``
@@ -518,11 +509,11 @@ Slot ${slot}, duration ${duration} hours
         log(logText);
         const currentTimestamp = Timestamp.now();
 
-        teleBot.api
-          .sendMessage(PAYMENT_LOGS_CHANNEL || "", logText, {
-            parse_mode: "MarkdownV2",
-          })
-          .catch((e) => errorHandler(e));
+        // teleBot.api
+        //   .sendMessage(PAYMENT_LOGS_CHANNEL || "", logText, {
+        //     parse_mode: "MarkdownV2",
+        //   })
+        //   .catch((e) => errorHandler(e));
 
         await updateDocumentById({
           updates: {
@@ -538,7 +529,7 @@ Slot ${slot}, duration ${duration} hours
         });
 
         //         const confirmationText = `You have purchased a trending slot ${slot} for ${duration} hours.
-        // Payment received of - \`${roundUpToDecimalPlace(amountSol, 4)}\` SOL
+        // Payment received of - \`${roundUpToDecimalPlace(amountSol, 4)}\` TRX
 
         // Transaction hash for your payment is \`${hash}\`. Your token would be visible, and available to be scanned the next time the bot updates the trending message, so it may take a minute or two. In case of any doubts please reach out to the admins of the bot for any query.
 

@@ -7,7 +7,7 @@ export async function getTrendingTokens() {
   // const page = await browser.newPage();
   // // const ws = new WebSocket(DEX_URL || "", { headers: wssHeaders });
   // await page.goto(
-  //   "https://app.geckoterminal.com/api/p1/solana/pools?include=dex,dex.network,dex.network.network_metric,tokens&page=1&include_network_metrics=true&sort=-1h_trend_score&networks=solana"
+  //   "https://app.geckoterminal.com/api/p1/tron/pools?include=dex,dex.network,dex.network.network_metric,tokens&page=1&include_network_metrics=true&sort=-1h_trend_score&networks=tron"
   // );
   // const allText = await page.evaluate(() => {
   //   return document.body.innerText;

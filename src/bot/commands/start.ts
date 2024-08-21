@@ -25,7 +25,6 @@ To advertise \\- /advertise`;
         break;
       }
       default: {
-        console.log("test");
         return await ctx.reply(text, {
           // @ts-expect-error Type not found
           disable_web_page_preview: true,

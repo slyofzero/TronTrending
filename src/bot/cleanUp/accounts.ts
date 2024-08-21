@@ -1,12 +1,11 @@
 import { getDocument, updateDocumentById } from "@/firebase";
-import { solanaConnection } from "@/rpc";
+import { tronWeb } from "@/rpc";
 import { StoredAccount } from "@/types";
 import { splitPaymentsWith, transactionValidTime } from "@/utils/constants";
 import { decrypt } from "@/utils/cryptography";
 import { errorHandler, log } from "@/utils/handlers";
 import { getSecondsElapsed } from "@/utils/time";
 import { sendTransaction } from "@/utils/web3";
-import { Keypair } from "@solana/web3.js";
 
 export async function unlockUnusedAccounts() {
   log("Unlocking unused accounts...");
@@ -19,10 +18,8 @@ export async function unlockUnusedAccounts() {
   for (const { id, secretKey, lockedAt } of lockedAccounts) {
     try {
       const decryptedSecretKey = decrypt(secretKey);
-      const account = Keypair.fromSecretKey(
-        new Uint8Array(JSON.parse(decryptedSecretKey))
-      );
-      const balance = await solanaConnection.getBalance(account.publicKey);
+      const account = tronWeb.address.fromPrivateKey(decryptedSecretKey);
+      const balance = await tronWeb.trx.getBalance(account);
       const durationSinceLocked = lockedAt
         ? getSecondsElapsed(lockedAt.seconds)
         : 999999;
@@ -31,7 +28,7 @@ export async function unlockUnusedAccounts() {
       if (!isPaymentFinished) continue;
 
       if (balance > 0) {
-        log(`${account.publicKey.toBase58()} holds ${balance}`);
+        log(`${account} holds ${balance}`);
 
         updateDocumentById({
           updates: { locked: true, lockedAt: null },
@@ -45,14 +42,14 @@ export async function unlockUnusedAccounts() {
           splitPaymentsWith.main.address
         );
 
-        log(`${account.publicKey.toBase58()} emptied`);
+        log(`${account} emptied`);
       } else {
         updateDocumentById({
           updates: { locked: false, lockedAt: null },
           collectionName: "accounts",
           id: id || "",
         });
-        log(`${account.publicKey.toBase58()} unlocked`);
+        log(`${account} unlocked`);
       }
     } catch (error) {
       errorHandler(error);

@@ -82,7 +82,7 @@ export async function selectAdDuration(
 
     for (const duration in adPrices) {
       const price = adPrices[duration];
-      const slotText = `${duration} hours : ${price} SOL`;
+      const slotText = `${duration} hours : ${price} TRX`;
       keyboard = keyboard.text(slotText, `adDuration-${duration}`).row();
     }
 

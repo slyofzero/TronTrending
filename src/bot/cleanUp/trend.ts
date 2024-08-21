@@ -2,7 +2,6 @@ import { updateDocumentById } from "@/firebase";
 import { PairsData } from "@/types";
 import { apiFetcher, syncTrendingBuyBot } from "@/utils/api";
 import { transactionValidTime } from "@/utils/constants";
-import { TOKEN_DATA_URL } from "@/utils/env";
 import { errorHandler, log } from "@/utils/handlers";
 import { getSecondsElapsed } from "@/utils/time";
 import { allToTrend, syncToTrend } from "@/vars/trending";
@@ -13,7 +12,7 @@ export async function cleanUpPendingToTrend() {
       const { paidAt, expiresAt, id, status, token } = trend;
 
       const pairData = await apiFetcher<PairsData>(
-        `${TOKEN_DATA_URL}/${token}`
+        `https://api.dexscreener.com/latest/dex/tokens/${token}`
       );
 
       const firstPair = pairData?.data.pairs.at(0);
