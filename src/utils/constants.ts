@@ -2,13 +2,12 @@ import { trendingMessageId } from "@/vars/message";
 import {
   AD_PRICES,
   BANNED_TOKENS,
-  FIREBASE_PREFIX,
   MAIN_ACCOUNT,
   TRENDING_CHANNEL_LINK,
   TRENDING_PRICES,
 } from "./env";
 
-export const firebaseCollectionPrefix = `_${FIREBASE_PREFIX}`;
+export const firebaseCollectionPrefix = `_hype_tron_trending`;
 export const wssHeaders = {
   Pragma: "no-cache",
   "Cache-Control": "no-cache",

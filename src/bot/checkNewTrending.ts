@@ -78,7 +78,7 @@ export async function sendNewTrendingMsg(tokenData: PairData, index: number) {
 
   const message = `🪙 [${hardCleanUpBotMessage(
     name
-  )}](${url}) Just Entered [Tron TRENDING](${TRENDING_MESSAGE})
+  )}](${url}) Just Entered [HYPE TRON TRENDING](${TRENDING_MESSAGE})
   
 Token: [${token}](${solScanLink})
 Position: [\`${index + 1}\`](${TRENDING_MESSAGE})
