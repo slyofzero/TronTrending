@@ -1,7 +1,11 @@
 import { getDocument, updateDocumentById } from "@/firebase";
 import { tronWeb } from "@/rpc";
 import { StoredAccount } from "@/types";
-import { splitPaymentsWith, transactionValidTime } from "@/utils/constants";
+import {
+  feeLimit,
+  splitPaymentsWith,
+  transactionValidTime,
+} from "@/utils/constants";
 import { decrypt } from "@/utils/cryptography";
 import { errorHandler, log } from "@/utils/handlers";
 import { getSecondsElapsed } from "@/utils/time";
@@ -27,7 +31,7 @@ export async function unlockUnusedAccounts() {
 
       if (!isPaymentFinished) continue;
 
-      if (balance > 0) {
+      if (balance > feeLimit) {
         log(`${account} holds ${balance}`);
 
         updateDocumentById({

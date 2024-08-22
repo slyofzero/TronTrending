@@ -57,3 +57,4 @@ export const TRENDING_MESSAGE = `${TRENDING_CHANNEL_LINK}/${trendingMessageId}`;
 export const bannedTokens: string[] = JSON.parse(BANNED_TOKENS || "[]");
 export const SUNS_PER_TRX = 1_000_000;
 export const NEW_THRESHOLD = 30 * 60 * 1000;
+export const feeLimit = 2 * 1000000;
