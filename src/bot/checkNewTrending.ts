@@ -43,13 +43,12 @@ export async function sendNewTrendingMsg(tokenData: PairData, index: number) {
     return log("Channel ID or PINNED_MSG_ID is undefined");
   }
 
-  const { baseToken, pairAddress} = tokenData; // prettier-ignore
+  const { baseToken} = tokenData; // prettier-ignore
   const { name, address: token } = baseToken;
   const { keyboard } = generateTextFooter(token);
 
-  const solScanLink = `https://solscan.io/token/${token}`;
+  const solScanLink = `https://tronscan.org/#/token20/${token}`;
   const dexSLink = `https://dexscreener.com/tron/${token}`;
-  const photonLink = `https://photon-TRX.tinyastro.io/en/lp/${pairAddress}`;
   const socials = [];
   const toTrendChat = toTrendTokens.find(
     ({ token: storedToken }) => storedToken === token
@@ -75,7 +74,7 @@ export async function sendNewTrendingMsg(tokenData: PairData, index: number) {
     ({ token: storedToken }) => storedToken === token
   )?.socials;
 
-  const url = tokenSocials || telegramLink || photonLink;
+  const url = tokenSocials || telegramLink || dexSLink;
 
   const message = `🪙 [${hardCleanUpBotMessage(
     name
