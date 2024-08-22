@@ -1,5 +1,5 @@
 import { errorHandler, log } from "./handlers";
-import { splitPaymentsWith } from "./constants";
+import { feeLimit, splitPaymentsWith } from "./constants";
 import { tronWeb } from "@/rpc";
 
 export async function generateAccount() {
@@ -16,7 +16,7 @@ export async function sendTransaction(
     const wallet = tronWeb.address.fromPrivateKey(privateKey);
     const txn = await tronWeb.transactionBuilder.sendTrx(
       to,
-      amount,
+      amount - feeLimit,
       String(wallet)
     );
     const signedTx = await tronWeb.trx.sign(txn, privateKey);
