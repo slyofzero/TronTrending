@@ -54,9 +54,9 @@ export async function updateTrendingMessage() {
         ({ token: storedToken }) => storedToken === token
       )?.socials;
 
-      const photonLink = `https://photon-TRX.tinyastro.io/en/r/@closedcircle/${token}`;
+      const dexSLink = `https://dexscreener.com/tron/${token}`;
 
-      const url = tokenSocials || telegramLink || photonLink;
+      const url = tokenSocials || telegramLink || dexSLink;
       // const scanUrl = `https://t.me/ttfbotbot?start=${token}`;
       // const buyUrl = `https://t.me/magnum_trade_bot?start=PHryLEnW_snipe_${token}`;
 
@@ -67,7 +67,7 @@ export async function updateTrendingMessage() {
       const tokenText = trendingDuration
         ? "New\\!"
         : `${cleanUpBotMessage(priceChangeh24)}%`;
-      const formattedPriceChange = `[${tokenText}](${photonLink})`;
+      const formattedPriceChange = `[${tokenText}](${dexSLink})`;
 
       const indentation = index < 3 || index === 9 ? "\n" : "";
 
