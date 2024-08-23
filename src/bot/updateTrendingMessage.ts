@@ -66,7 +66,7 @@ export async function updateTrendingMessage() {
       const tokenText = `${cleanUpBotMessage(priceChangeh24)}%`;
       const formattedPriceChange = `[${tokenText}](${dexSLink})`;
 
-      const indentation = index < 3 || index === 9 ? "\n" : "";
+      const indentation = index % 5 === 0 ? "————————————" : "";
 
       let newLine = `${icon} [${cleanedTokenName} \\| ${cleanedTokenSymbol}](${url}) \\| ${formattedPriceChange}\n${indentation}`;
       newLine = newLine.trimStart();
