@@ -1,4 +1,4 @@
-import { CHANNEL_ID } from "@/utils/env";
+import { CHANNEL_ID, TRENDING_CHANNEL_LINK } from "@/utils/env";
 import { errorHandler, log } from "@/utils/handlers";
 import { toTrendTokens, trendingTokens } from "@/vars/trending";
 import { lastEditted, setLastEditted, trendingMessageId } from "@/vars/message";
@@ -18,7 +18,7 @@ export async function updateTrendingMessage() {
 
   log("Updating trending message...");
 
-  let trendingTokensMessage = `*HYPE TRON TRENDING* \\| [*Disclaimer*](https://t.me/c/2125443386/2)\n\n`;
+  let trendingTokensMessage = `[*HYPE TRON TRENDING*](${TRENDING_CHANNEL_LINK})\n\n`;
   const icons = [
     "🥇",
     "🥈",
