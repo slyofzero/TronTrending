@@ -9,6 +9,8 @@ import {
   toTrendTokens,
 } from "@/vars/trending";
 
+export const timeSinceTrending: { [key: string]: number } = {};
+
 export async function processTrendingPairs() {
   let newTopTrendingTokens: TrendingTokens = [];
 
@@ -114,6 +116,7 @@ export async function processTrendingPairs() {
 
   for (const [token] of newTopTrendingTokens) {
     if (!previouslyTrendingTokens.includes(token)) {
+      timeSinceTrending[token] = Date.now();
       log(`${token} added to trending list`);
       syncTrendingBuyBot();
       break;

@@ -9,8 +9,7 @@ import {
   hardCleanUpBotMessage,
   sendNewTrendingMessage,
 } from "@/utils/bot";
-import { NEW_THRESHOLD, validEditMessageTextErrors } from "@/utils/constants";
-import { timeSinceTrending } from "./checkNewTrending";
+import { validEditMessageTextErrors } from "@/utils/constants";
 
 export async function updateTrendingMessage() {
   if (!CHANNEL_ID) {
@@ -31,11 +30,11 @@ export async function updateTrendingMessage() {
     "8️⃣",
     "9️⃣",
     "🔟",
-    "1️⃣1️⃣",
-    "1️⃣2️⃣",
-    "1️⃣3️⃣",
-    "1️⃣4️⃣",
-    "1️⃣5️⃣",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
   ];
 
   try {
@@ -62,11 +61,9 @@ export async function updateTrendingMessage() {
 
       const cleanedTokenName = hardCleanUpBotMessage(name);
       const cleanedTokenSymbol = hardCleanUpBotMessage(symbol);
-      const trendingDuration =
-        Date.now() - timeSinceTrending[token] < NEW_THRESHOLD;
-      const tokenText = trendingDuration
-        ? "New\\!"
-        : `${cleanUpBotMessage(priceChangeh24)}%`;
+      // const trendingDuration =
+      //   Date.now() - timeSinceTrending[token] < NEW_THRESHOLD;
+      const tokenText = `${cleanUpBotMessage(priceChangeh24)}%`;
       const formattedPriceChange = `[${tokenText}](${dexSLink})`;
 
       const indentation = index < 3 || index === 9 ? "\n" : "";
