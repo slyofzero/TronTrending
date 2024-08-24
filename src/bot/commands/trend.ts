@@ -16,6 +16,7 @@ import { getDocument } from "@/firebase";
 import moment from "moment";
 import { trendPrices } from "@/utils/constants";
 import { tronWeb } from "@/rpc";
+import { SunPumpTokenData } from "@/types/sunpumpapidata";
 
 export async function trend(
   ctx: CommandContext<Context> | CallbackQueryContext<Context>
@@ -94,7 +95,15 @@ export async function addTrendingSocial(ctx: CommandContext<Context>) {
   );
 
   if (!dexSData?.data.pairs?.length) {
-    return ctx.reply("The address you entered has no pairs on Tron.");
+    const sunpumpData = await apiFetcher<SunPumpTokenData>(
+      `https://api-v2.sunpump.meme/pump-api/token/${token}`
+    );
+
+    const tokenData = sunpumpData?.data?.data;
+
+    if (!tokenData) {
+      return ctx.reply("The address you entered has no pairs on Tron.");
+    }
   }
 
   const storedTokenData = toTrendTokens.find(
@@ -131,7 +140,7 @@ export async function setTrendingEmoji(
   delete userState[chatId];
 
   ctx.reply(
-    "Please enter emoji that you wish to display in Tron Trending Channel's buybot"
+    "Please enter emoji that you wish to display in HYPE TRON TRENDING Channel's buybot"
   );
   userState[chatId] = "trendEmoji";
 }

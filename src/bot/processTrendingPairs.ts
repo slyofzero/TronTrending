@@ -1,4 +1,8 @@
 import { PairData, PairsData } from "@/types";
+import {
+  SunPumpTokenData,
+  SunPumpTokenMarketData,
+} from "@/types/sunpumpapidata";
 import { TrendingTokens } from "@/types/trending";
 import { apiFetcher, syncTrendingBuyBot } from "@/utils/api";
 import { getTrendingTokens } from "@/utils/getTokens";
@@ -9,46 +13,10 @@ import {
   toTrendTokens,
 } from "@/vars/trending";
 
+export const timeSinceTrending: { [key: string]: number } = {};
+
 export async function processTrendingPairs() {
   let newTopTrendingTokens: TrendingTokens = [];
-
-  // const getTrendingTokens = async (page: number) => {
-  //   page ||= 1;
-  //   const trendingPairs = await apiFetcher<TokenPoolData>(
-  //     `https://api.geckoterminal.com/api/v2/networks/tron/trending_pools?page=${page}`
-  //   );
-
-  //   if (!trendingPairs) return;
-
-  //   for (const pair of trendingPairs.data.data) {
-  //     if (newTopTrendingTokens.length >= 15) break;
-
-  //     try {
-  //       const { address } = pair.attributes;
-  //       const pairData = await apiFetcher<PairsData>(
-  //         `https://api.dexscreener.com/latest/dex/pairs/tron/${address}`
-  //       );
-
-  //       const tokenAlreadyInTop15 = newTopTrendingTokens.some(
-  //         ([token]) => token === address
-  //       );
-
-  //       const firstPair = pairData?.data.pairs.at(0);
-  //       if (!firstPair || tokenAlreadyInTop15) continue;
-
-  //       const baseToken = firstPair.baseToken.address;
-  //       if (bannedTokens.includes(baseToken)) continue;
-
-  //       newTopTrendingTokens.push([baseToken, firstPair]);
-  //     } catch (error) {
-  //       errorHandler(error);
-  //     }
-  //   }
-
-  //   if (newTopTrendingTokens.length < 15) await getTrendingTokens(page + 1);
-  // };
-
-  // await getTrendingTokens(1);
 
   const trendingPoolsList = await getTrendingTokens();
 
@@ -97,9 +65,19 @@ export async function processTrendingPairs() {
     const pairData = await apiFetcher<PairsData>(
       `https://api.dexscreener.com/latest/dex/tokens/${token}`
     );
+
+    const sunpumpData = await apiFetcher<SunPumpTokenData>(
+      `https://api-v2.sunpump.meme/pump-api/token/${token}`
+    );
+
     const firstPair = pairData?.data.pairs.at(0);
-    if (!firstPair) continue;
-    const newTrendingPair: [string, PairData] = [token, firstPair];
+    const tokenData = sunpumpData?.data.data;
+    const availableData = firstPair || tokenData;
+    if (!availableData) continue;
+    const newTrendingPair: [string, PairData | SunPumpTokenMarketData] = [
+      token,
+      availableData,
+    ];
     newTopTrendingTokens.splice(slotToTrend - 1, 0, newTrendingPair);
   }
 
@@ -114,6 +92,7 @@ export async function processTrendingPairs() {
 
   for (const [token] of newTopTrendingTokens) {
     if (!previouslyTrendingTokens.includes(token)) {
+      timeSinceTrending[token] = Date.now();
       log(`${token} added to trending list`);
       syncTrendingBuyBot();
       break;

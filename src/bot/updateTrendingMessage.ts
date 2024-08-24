@@ -1,4 +1,4 @@
-import { CHANNEL_ID } from "@/utils/env";
+import { CHANNEL_ID, TRENDING_CHANNEL_LINK } from "@/utils/env";
 import { errorHandler, log } from "@/utils/handlers";
 import { toTrendTokens, trendingTokens } from "@/vars/trending";
 import { lastEditted, setLastEditted, trendingMessageId } from "@/vars/message";
@@ -9,8 +9,8 @@ import {
   hardCleanUpBotMessage,
   sendNewTrendingMessage,
 } from "@/utils/bot";
-import { NEW_THRESHOLD, validEditMessageTextErrors } from "@/utils/constants";
-import { timeSinceTrending } from "./checkNewTrending";
+import { validEditMessageTextErrors } from "@/utils/constants";
+import { isPairData } from "@/utils/type";
 
 export async function updateTrendingMessage() {
   if (!CHANNEL_ID) {
@@ -19,7 +19,7 @@ export async function updateTrendingMessage() {
 
   log("Updating trending message...");
 
-  let trendingTokensMessage = `*TRON TRENDING* \\| [*Disclaimer*](https://t.me/c/2125443386/2)\n\n`;
+  let trendingTokensMessage = `[*HYPE TRON TRENDING*](${TRENDING_CHANNEL_LINK})\n\n`;
   const icons = [
     "🥇",
     "🥈",
@@ -31,22 +31,32 @@ export async function updateTrendingMessage() {
     "8️⃣",
     "9️⃣",
     "🔟",
-    "1️⃣1️⃣",
-    "1️⃣2️⃣",
-    "1️⃣3️⃣",
-    "1️⃣4️⃣",
-    "1️⃣5️⃣",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
   ];
 
   try {
     // ------------------------------ Trending Message ------------------------------
     for (const [index, [token, tokenData]] of trendingTokens.entries()) {
-      const { baseToken, priceChange } = tokenData;
-      const { name, symbol } = baseToken;
-      const priceChangeh24 = priceChange.h24;
+      let symbol = "";
+      let priceChangeh24 = 0;
+      let info = null;
+
+      if (isPairData(tokenData)) {
+        symbol = tokenData.baseToken.symbol;
+        priceChangeh24 = tokenData.priceChange.h24;
+        info = tokenData.info;
+      } else {
+        symbol = tokenData.symbol;
+        priceChangeh24 = tokenData.priceChange24Hr;
+      }
+
       const icon = icons[index] || "🔥";
 
-      const telegramLink = tokenData.info?.socials?.find(
+      const telegramLink = info?.socials?.find(
         ({ type }) => type === "telegram"
       )?.url;
 
@@ -60,18 +70,16 @@ export async function updateTrendingMessage() {
       // const scanUrl = `https://t.me/ttfbotbot?start=${token}`;
       // const buyUrl = `https://t.me/magnum_trade_bot?start=PHryLEnW_snipe_${token}`;
 
-      const cleanedTokenName = hardCleanUpBotMessage(name);
       const cleanedTokenSymbol = hardCleanUpBotMessage(symbol);
-      const trendingDuration =
-        Date.now() - timeSinceTrending[token] < NEW_THRESHOLD;
-      const tokenText = trendingDuration
-        ? "New\\!"
-        : `${cleanUpBotMessage(priceChangeh24)}%`;
+      // const trendingDuration =
+      //   Date.now() - timeSinceTrending[token] < NEW_THRESHOLD;
+      const tokenText = `${cleanUpBotMessage(priceChangeh24)}%`;
       const formattedPriceChange = `[${tokenText}](${dexSLink})`;
 
-      const indentation = index < 3 || index === 9 ? "\n" : "";
+      const indentation =
+        (index + 1) % 5 === 0 && index != 14 ? "————————————\n" : "";
 
-      let newLine = `${icon} [${cleanedTokenName} \\| ${cleanedTokenSymbol}](${url}) \\| ${formattedPriceChange}\n${indentation}`;
+      let newLine = `${icon} \\- [*${cleanedTokenSymbol}*](${url}) \\| ${formattedPriceChange}\n${indentation}`;
       newLine = newLine.trimStart();
       trendingTokensMessage += newLine;
     }
