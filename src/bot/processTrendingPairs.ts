@@ -1,4 +1,8 @@
 import { PairData, PairsData } from "@/types";
+import {
+  SunPumpTokenData,
+  SunPumpTokenMarketData,
+} from "@/types/sunpumpapidata";
 import { TrendingTokens } from "@/types/trending";
 import { apiFetcher, syncTrendingBuyBot } from "@/utils/api";
 import { getTrendingTokens } from "@/utils/getTokens";
@@ -99,9 +103,19 @@ export async function processTrendingPairs() {
     const pairData = await apiFetcher<PairsData>(
       `https://api.dexscreener.com/latest/dex/tokens/${token}`
     );
+
+    const sunpumpData = await apiFetcher<SunPumpTokenData>(
+      `https://api-v2.sunpump.meme/pump-api/token/${token}`
+    );
+
     const firstPair = pairData?.data.pairs.at(0);
-    if (!firstPair) continue;
-    const newTrendingPair: [string, PairData] = [token, firstPair];
+    const tokenData = sunpumpData?.data.data;
+    const availableData = firstPair || tokenData;
+    if (!availableData) continue;
+    const newTrendingPair: [string, PairData | SunPumpTokenMarketData] = [
+      token,
+      availableData,
+    ];
     newTopTrendingTokens.splice(slotToTrend - 1, 0, newTrendingPair);
   }
 

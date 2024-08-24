@@ -10,6 +10,7 @@ import {
   sendNewTrendingMessage,
 } from "@/utils/bot";
 import { validEditMessageTextErrors } from "@/utils/constants";
+import { isPairData } from "@/utils/type";
 
 export async function updateTrendingMessage() {
   if (!CHANNEL_ID) {
@@ -40,12 +41,22 @@ export async function updateTrendingMessage() {
   try {
     // ------------------------------ Trending Message ------------------------------
     for (const [index, [token, tokenData]] of trendingTokens.entries()) {
-      const { baseToken, priceChange } = tokenData;
-      const { symbol } = baseToken;
-      const priceChangeh24 = priceChange.h24;
+      let symbol = "";
+      let priceChangeh24 = 0;
+      let info = null;
+
+      if (isPairData(tokenData)) {
+        symbol = tokenData.baseToken.symbol;
+        priceChangeh24 = tokenData.priceChange.h24;
+        info = tokenData.info;
+      } else {
+        symbol = tokenData.symbol;
+        priceChangeh24 = tokenData.priceChange24Hr;
+      }
+
       const icon = icons[index] || "🔥";
 
-      const telegramLink = tokenData.info?.socials?.find(
+      const telegramLink = info?.socials?.find(
         ({ type }) => type === "telegram"
       )?.url;
 
