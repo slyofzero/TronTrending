@@ -27,8 +27,6 @@ export async function sendMessages() {
   await processTrendingPairs();
   await checkNewTrending();
   await updateTrendingMessage();
-
-  cleanUpExpired();
 }
 
 (async function () {
@@ -46,6 +44,12 @@ export async function sendMessages() {
   ]);
 
   setInterval(unlockUnusedAccounts, 5 * 60 * 1e3);
+  setInterval(() => {
+    log("Syncing...");
+    syncToTrend();
+    syncAdvertisements();
+  }, 30 * 60 * 1e3);
+  setInterval(cleanUpExpired, 60 * 1e3);
   // connectWebSocket();
 
   app.use(express.json());
