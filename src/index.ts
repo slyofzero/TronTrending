@@ -27,6 +27,8 @@ export async function sendMessages() {
   await processTrendingPairs();
   await checkNewTrending();
   await updateTrendingMessage();
+
+  sleep(5 * 60 * 1e3).then(() => sendMessages());
 }
 
 (async function () {
@@ -94,5 +96,4 @@ export async function sendMessages() {
   });
 
   await sendMessages();
-  sleep(5 * 60 * 1e3).then(() => sendMessages());
 })();
