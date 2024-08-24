@@ -14,6 +14,7 @@ import { unlockUnusedAccounts } from "./bot/cleanUp/accounts";
 import { checkNewTrending } from "./bot/checkNewTrending";
 import { trendingMessageId } from "./vars/message";
 import { rpcConfig } from "./rpc";
+import { isPairData } from "./utils/type";
 
 export const teleBot = new Bot(BOT_TOKEN || "");
 log("Bot instance ready");
@@ -56,7 +57,14 @@ export async function sendMessages() {
   app.get("/trending", (req: Request, res: Response) => {
     const trendingTokensAndPairs: { [key: string]: string } = {};
     for (const [token, tokenData] of trendingTokens) {
-      const pair = tokenData.pairAddress;
+      let pair = "";
+
+      if (isPairData(tokenData)) {
+        pair = tokenData.pairAddress;
+      } else {
+        pair = tokenData.swapPoolAddress || "";
+      }
+
       trendingTokensAndPairs[token] = pair;
     }
 
