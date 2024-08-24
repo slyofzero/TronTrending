@@ -10,12 +10,16 @@ import moment from "moment";
 import { teleBot } from "..";
 import { errorHandler, log } from "@/utils/handlers";
 import { CHANNEL_ID } from "@/utils/env";
-import { PairData, PairsData, StoredToTrend } from "@/types";
+import { PairsData, StoredToTrend, TrendingData } from "@/types";
 import { apiFetcher } from "@/utils/api";
 import { DEXSCREEN_URL, TRENDING_MESSAGE } from "@/utils/constants";
 import { sleep } from "@/utils/time";
 import { setLastSentMessageId } from "@/vars/message";
 import { updateDocumentById } from "@/firebase";
+import { SunPumpTokenMarketData } from "@/types/sunpumpapidata";
+import { isPairData } from "@/utils/type";
+
+export const timeSinceTrending: { [key: string]: number } = {};
 
 moment.updateLocale("en", {
   relativeTime: {
@@ -36,13 +40,27 @@ moment.updateLocale("en", {
   },
 });
 
-export async function sendNewTrendingMsg(tokenData: PairData, index: number) {
+export async function sendNewTrendingMsg(
+  tokenData: TrendingData | SunPumpTokenMarketData,
+  index: number
+) {
   if (!CHANNEL_ID) {
     return log("Channel ID or PINNED_MSG_ID is undefined");
   }
 
-  const { baseToken} = tokenData; // prettier-ignore
-  const { name, address: token } = baseToken;
+  let token = "";
+  let name = "";
+  let info = null;
+
+  if (isPairData(tokenData)) {
+    token = tokenData.baseToken.address;
+    name = tokenData.baseToken.name;
+    info = tokenData.info;
+  } else {
+    token = tokenData.contractAddress;
+    name = tokenData.name;
+  }
+
   const { keyboard } = generateTextFooter(token);
 
   const solScanLink = `https://tronscan.org/#/token20/${token}`;
@@ -52,19 +70,19 @@ export async function sendNewTrendingMsg(tokenData: PairData, index: number) {
     ({ token: storedToken }) => storedToken === token
   );
 
-  for (const { label, url } of tokenData.info?.websites || []) {
+  for (const { label, url } of info?.websites || []) {
     if (url) {
       socials.push(`[${toTitleCase(label)}](${url})`);
     }
   }
 
-  for (const { type, url } of tokenData.info?.socials || []) {
+  for (const { type, url } of info?.socials || []) {
     if (url) {
       socials.push(`[${toTitleCase(type)}](${url})`);
     }
   }
 
-  const telegramLink = tokenData.info?.socials?.find(
+  const telegramLink = info?.socials?.find(
     ({ type }) => type === "telegram"
   )?.url;
 
@@ -76,7 +94,7 @@ export async function sendNewTrendingMsg(tokenData: PairData, index: number) {
 
   const message = `🪙 [${hardCleanUpBotMessage(
     name
-  )}](${url}) Just Entered [HYPE TRON TRENDING](${TRENDING_MESSAGE})
+  )}](${url}) Just Entered [Tron TRENDING](${TRENDING_MESSAGE})
   
 Token: [${token}](${solScanLink})
 Position: [\`${index + 1}\`](${TRENDING_MESSAGE})
@@ -121,6 +139,8 @@ export async function checkNewTrending() {
   for (const [index, [token, tokenData]] of trendingTokens.entries()) {
     const wasPreviouslyTrending = previouslyTrendingTokens.includes(token);
     if (wasPreviouslyTrending) continue;
+
+    timeSinceTrending[token] = Date.now();
 
     await sendNewTrendingMsg(tokenData, index);
   }
