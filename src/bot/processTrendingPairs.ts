@@ -33,7 +33,7 @@ export async function processTrendingPairs() {
         ([token]) => token === address
       );
 
-      const firstPair = pairData?.data.pairs.at(0);
+      const firstPair = pairData?.data.pairs?.at(0);
       if (!firstPair || tokenAlreadyInTop15) continue;
       const tokenAddress = firstPair.baseToken.address;
 
@@ -54,6 +54,7 @@ export async function processTrendingPairs() {
 
     const [min, max] = slotRange;
     const slotToTrend = Math.floor(Math.random() * (max - min + 1)) + min;
+
     if (alreadyTrendingRank !== -1) {
       if (slotToTrend < alreadyTrendingRank) {
         const [tokenData] = newTopTrendingTokens.splice(alreadyTrendingRank, 1);
@@ -70,7 +71,7 @@ export async function processTrendingPairs() {
       `https://api-v2.sunpump.meme/pump-api/token/${token}`
     );
 
-    const firstPair = pairData?.data.pairs.at(0);
+    const firstPair = pairData?.data.pairs?.at(0);
     const tokenData = sunpumpData?.data.data;
     const availableData = firstPair || tokenData;
     if (!availableData) continue;

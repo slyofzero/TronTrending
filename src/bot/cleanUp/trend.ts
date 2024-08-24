@@ -20,7 +20,7 @@ export async function cleanUpPendingToTrend() {
         `https://api-v2.sunpump.meme/pump-api/token/${token}`
       );
 
-      const firstPair = pairData?.data.pairs.at(0);
+      const firstPair = pairData?.data.pairs?.at(0);
       const tokenData = sunpumpData?.data?.data;
 
       const secondsTillPaymentGeneration = getSecondsElapsed(paidAt.seconds);
