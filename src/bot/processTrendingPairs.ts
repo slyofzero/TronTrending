@@ -39,7 +39,7 @@ export async function processTrendingPairs() {
   //         ([token]) => token === address
   //       );
 
-  //       const firstPair = pairData?.data.pairs.at(0);
+  //       const firstPair = pairData?.data.pairs?.at(0);
   //       if (!firstPair || tokenAlreadyInTop15) continue;
 
   //       const baseToken = firstPair.baseToken.address;
@@ -71,7 +71,7 @@ export async function processTrendingPairs() {
         ([token]) => token === address
       );
 
-      const firstPair = pairData?.data.pairs.at(0);
+      const firstPair = pairData?.data.pairs?.at(0);
       if (!firstPair || tokenAlreadyInTop15) continue;
       const tokenAddress = firstPair.baseToken.address;
 
@@ -108,7 +108,7 @@ export async function processTrendingPairs() {
       `https://api-v2.sunpump.meme/pump-api/token/${token}`
     );
 
-    const firstPair = pairData?.data.pairs.at(0);
+    const firstPair = pairData?.data.pairs?.at(0);
     const tokenData = sunpumpData?.data.data;
     const availableData = firstPair || tokenData;
     if (!availableData) continue;
