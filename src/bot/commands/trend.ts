@@ -166,18 +166,24 @@ export async function selectTrendingSlot(
   const top15Trending =
     toTrendTokens.filter(({ slot }) => slot === 3).length === 15;
 
-  const text =
-    "❕ Select open slot or click to see the nearest potential availability time:";
+  const text = `❕ Select open slot or click to see the nearest potential availability time:`;
 
   let keyboard = new InlineKeyboard();
-  if (!top3Trending)
-    keyboard = keyboard.text("🟢 Top 3 guarantee", "trendSlot-1");
-  if (!top8Trending)
-    keyboard = keyboard.text("🟢 Top 8 guarantee", "trendSlot-2");
-  if (!top15Trending)
-    keyboard = keyboard.text("🟢 Any position", "trendSlot-3");
 
-  keyboard = keyboard.toFlowed(2);
+  keyboard = keyboard
+    .text(
+      `${top3Trending ? "🔴" : "🟢"} Top 3 guarantee`,
+      top3Trending ? "" : "trendSlot-1"
+    )
+    .text(
+      `${top8Trending ? "🔴" : "🟢"} Top 8 guarantee`,
+      top8Trending ? "" : "trendSlot-2"
+    )
+    .text(
+      `${top15Trending ? "🔴" : "🟢"} Any position`,
+      top15Trending ? "" : "trendSlot-3"
+    )
+    .toFlowed(2);
 
   ctx.reply(text, { reply_markup: keyboard });
 }
