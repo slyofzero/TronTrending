@@ -19,7 +19,7 @@ export async function updateTrendingMessage() {
 
   log("Updating trending message...");
 
-  let trendingTokensMessage = `[*HYPE TRON TRENDING*](${TRENDING_CHANNEL_LINK})\n\n`;
+  let trendingTokensMessage = `[*TRON TRENDING*](${TRENDING_CHANNEL_LINK})\n\n`;
   const icons = [
     "🥇",
     "🥈",
