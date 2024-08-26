@@ -13,8 +13,6 @@ To advertise \\- /advertise`;
 
     const { match } = ctx;
 
-    console.log(match);
-
     switch (match) {
       case "trend": {
         trend(ctx);

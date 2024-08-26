@@ -6,7 +6,6 @@ import {
   toTrendTokens,
   trendingTokens,
 } from "@/vars/trending";
-import moment from "moment";
 import { teleBot } from "..";
 import { errorHandler, log } from "@/utils/handlers";
 import { CHANNEL_ID } from "@/utils/env";
@@ -20,25 +19,6 @@ import { SunPumpTokenMarketData } from "@/types/sunpumpapidata";
 import { isPairData } from "@/utils/type";
 
 export const timeSinceTrending: { [key: string]: number } = {};
-
-moment.updateLocale("en", {
-  relativeTime: {
-    future: "in %s",
-    past: "%s ago",
-    s: "a few seconds",
-    ss: "%d seconds",
-    m: "1 M ago",
-    mm: "%d M ago",
-    h: "1 H ago",
-    hh: "%d H ago",
-    d: "1 day ago",
-    dd: "%d days ago",
-    M: "1 month ago",
-    MM: "%d months ago",
-    y: "1 year ago",
-    yy: "%d years ago",
-  },
-});
 
 export async function sendNewTrendingMsg(
   tokenData: TrendingData | SunPumpTokenMarketData,
