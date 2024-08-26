@@ -1,7 +1,7 @@
-import { CHANNEL_ID, TRENDING_CHANNEL_LINK } from "@/utils/env";
+import { BOT_USERNAME, CHANNEL_ID, TRENDING_CHANNEL_LINK } from "@/utils/env";
 import { errorHandler, log } from "@/utils/handlers";
 import { toTrendTokens, trendingTokens } from "@/vars/trending";
-import { lastEditted, setLastEditted, trendingMessageId } from "@/vars/message";
+import { setLastEditted, trendingMessageId } from "@/vars/message";
 import { teleBot } from "..";
 import {
   cleanUpBotMessage,
@@ -85,7 +85,7 @@ export async function updateTrendingMessage() {
     }
 
     setLastEditted(new Date().toLocaleTimeString());
-    trendingTokensMessage += `\n_Automatically updates every minute_\n_Last updated at ${lastEditted} \\(GMT\\)_`;
+    trendingTokensMessage += `\n_ℹ️ Trending data is automatically updated by @${BOT_USERNAME} every minute_`;
 
     // ------------------------------ Advertisements ------------------------------
     const keyboard = generateAdvertisementKeyboard();
