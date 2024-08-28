@@ -140,7 +140,7 @@ export async function setTrendingEmoji(
   delete userState[chatId];
 
   ctx.reply(
-    "Please enter emoji that you wish to display in HYPE TRON TRENDING Channel's buybot"
+    "Please enter emoji that you wish to display in TROBO TRON TRENDING Channel's buybot"
   );
   userState[chatId] = "trendEmoji";
 }
