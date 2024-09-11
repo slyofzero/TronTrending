@@ -140,7 +140,7 @@ export async function setTrendingEmoji(
   delete userState[chatId];
 
   ctx.reply(
-    "Please enter emoji that you wish to display in HYPE TRON TRENDING Channel's buybot"
+    "Please enter emoji that you wish to display in TROBO TRON TRENDING Channel's buybot"
   );
   userState[chatId] = "trendEmoji";
 }
@@ -206,15 +206,12 @@ export async function selectTrendingDuration(
   let keyboard = new InlineKeyboard();
 
   const durationPrices = trendPrices[slot];
-  const discounts = { 3: 0, 8: 15, 24: 30 };
 
   for (const [index, [duration, price]] of Object.entries(
     durationPrices
   ).entries()) {
-    const discount = discounts[Number(duration) as 3 | 8 | 24];
-    const discountText = discount ? `(-${discount}%)` : "";
     keyboard = keyboard.text(
-      `${duration} hours | ${price} TRX ${discountText}`,
+      `${duration} hours | ${price} TRX`,
       `trendDuration-${duration}`
     );
 

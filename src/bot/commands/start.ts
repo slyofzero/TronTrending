@@ -3,17 +3,16 @@ import { trend } from "./trend";
 import { advertise } from "./advertise";
 import { BOT_USERNAME } from "@/utils/env";
 import { errorHandler } from "@/utils/handlers";
+import { hardCleanUpBotMessage } from "@/utils/bot";
 
 export async function startBot(ctx: CommandContext<Context>) {
   try {
-    const text = `Welcome to ${BOT_USERNAME}\\!
+    const text = `Welcome to @${hardCleanUpBotMessage(BOT_USERNAME)}\\!
     
 To trend a token \\- /trend
 To advertise \\- /advertise`;
 
     const { match } = ctx;
-
-    console.log(match);
 
     switch (match) {
       case "trend": {
