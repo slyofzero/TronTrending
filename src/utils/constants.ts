@@ -7,7 +7,7 @@ import {
   TRENDING_PRICES,
 } from "./env";
 
-export const firebaseCollectionPrefix = `_third_tron_trending`;
+export const firebaseCollectionPrefix = `_tron_trending`;
 export const wssHeaders = {
   Pragma: "no-cache",
   "Cache-Control": "no-cache",
