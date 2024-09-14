@@ -25,7 +25,7 @@ export async function trend(
   const username = ctx.from?.username;
   const callbackData = ctx.callbackQuery?.data;
 
-  if (!chatId) return ctx.reply("please do /trend again");
+  if (!chatId || !username) return ctx.reply("please do /trend again");
 
   const trendBoughtByUser = (
     await getDocument<StoredToTrend>({
