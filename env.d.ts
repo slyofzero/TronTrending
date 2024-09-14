@@ -21,6 +21,7 @@ declare global {
       PAYMENT_LOGS_CHANNEL: string | undefined;
       MAIN_ACCOUNT: string | undefined;
       DEXTOOLS_API_KEY: string | undefined;
+      DISCLAIMER_LINK: string | undefined;
     }
   }
 }
